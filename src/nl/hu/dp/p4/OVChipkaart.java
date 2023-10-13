@@ -1,5 +1,6 @@
 package nl.hu.dp.p4;
 
+import nl.hu.dp.P5.Product;
 import nl.hu.dp.p2.domain.Reiziger;
 
 import java.sql.Date;
@@ -12,6 +13,7 @@ public class OVChipkaart {
 
     private double saldo;
     private Reiziger reiziger;
+    private ArrayList<Product> products = new ArrayList<>();
 
 
     public OVChipkaart(int kaart_nummer, Date geldig_tot, int klasse, double saldo, Reiziger reiziger) {
@@ -24,6 +26,9 @@ public class OVChipkaart {
 
 
 
+    public ArrayList<Product> getProducts() {
+        return products;
+    }
 
     public Reiziger getReiziger() {
         return reiziger;
