@@ -5,6 +5,9 @@ import nl.hu.dp.p2.domain.ReizigerDAOPsql;
 import nl.hu.dp.p3.Adres;
 import nl.hu.dp.p3.AdresDAOPsql;
 import nl.hu.dp.p3.adresDAO;
+import nl.hu.dp.p4.OVChipkaart;
+import nl.hu.dp.p4.OVChipkaartDAO;
+import nl.hu.dp.p4.OVChipkaartDAOPsql;
 
 import java.sql.*;
 import java.util.List;
@@ -12,65 +15,97 @@ import java.util.List;
 public class Main {
     static Connection connection;
 
-
     public static void main(String[] args) throws SQLException{
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ovchip", "postgres", "Pietermortier1");
+        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ovchip", "postgres", "Pietermortier1");
 
             try {
 
                 ReizigerDAO rdao = new ReizigerDAOPsql(connection);
                 adresDAO adao = new AdresDAOPsql(connection);
+                OVChipkaartDAOPsql odao = new OVChipkaartDAOPsql(connection, rdao);
 
-                System.out.println(rdao.toString());
 
-
-                System.out.println(rdao);
+                testOVChipkaartDAO(odao);
+                System.out.println(odao);
 
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
         }
+    private static void testOVChipkaartDAO(OVChipkaartDAO odao) throws SQLException {
+        System.out.println("\n---------- Test OVChipkaartDAO -------------");
 
-
-
-    private static void testAdresDAO(adresDAO adao) throws SQLException {
-        System.out.println("\n---------- Test AdresDAO -------------");
-
-        List<Adres> adressen = adao.findAll();
-        System.out.println("[Test] AdresDAO.findAll() geeft de volgende reizigers:");
-        for (Adres a : adressen) {
-            System.out.println(a);
+        // Haal alle OVChipkaarten op uit de database
+        List<OVChipkaart> ovChipkaarts = odao.findAll();
+        System.out.println("[Test] OVChipkaartDAO.findAll() geeft de volgende reizigers:");
+        for (OVChipkaart ovChipkaart : ovChipkaarts) {
+            System.out.println(ovChipkaart);
         }
         System.out.println();
-        String gbdatum = "2000-03-14";
-        Reiziger jaap = new Reiziger(6, "J", "", "Armstrong", java.sql.Date.valueOf(gbdatum));
-        Adres a = new Adres(6,"1234TB", "25A","HUStraat", "Groningen", jaap);
-        System.out.print("[Test] Eerst " + adressen.size() + " reizigers, na AdresDAO.save() ");
-        adao.save(a);
-        adressen = adao.findAll();
-        System.out.println(adressen.size() + " reizigers\n");
+        String gbdatum = "2000-09-29";
+        String gdtot = "2025-09-29";
+        Reiziger lucas = new Reiziger(9, "L", "", "Caslu", java.sql.Date.valueOf(gbdatum));
+        OVChipkaart ovChipkaart = new OVChipkaart(39432, java.sql.Date.valueOf(gdtot), 2, 5.50, lucas);
+        System.out.print("[Test] Eerst " + ovChipkaarts.size() + " Ovchipkaarts, na AdresDAO.save() ");
+        odao.save(ovChipkaart);
+        ovChipkaarts = odao.findAll();
+        System.out.println(ovChipkaarts.size() + " reizigers\n");
 
-        Adres aa = adao.findByReiziger(jaap);
-        System.out.println("[Test] AdresDAO.findByReiziger() geeft de adres:");
-        System.out.println(aa);
+        List<OVChipkaart> OvList = odao.findByReiziger(lucas);
+        System.out.println("[Test] OVChipkaart.findByReiziger() geeft de lijst:");
+        System.out.println(OvList);
         System.out.println();
 
-        System.out.println("[Test] delete():    " + adao.delete(a));
+        ReizigerDAOPsql rdao = new ReizigerDAOPsql(connection);
+        System.out.println("[Test] delete():    " + odao.delete(ovChipkaart));
+        rdao.delete(rdao.findById(ovChipkaart.getReiziger().getReiziger_id()));
+
+
         System.out.println();
-        Reiziger jens = new Reiziger(7, "J", "", "Armweak", java.sql.Date.valueOf(gbdatum));
-        Adres b = new Adres(7,"4321BT", "30B","HUStraat123", "Alkmaar", jens);
-        System.out.println("[Test] update():    " + adao.update(b));
+        OVChipkaart ovChipkaart1 = new OVChipkaart(89432, java.sql.Date.valueOf(gdtot), 2, 5.50, lucas);
+        System.out.println("[Test] update():    " + odao.update(ovChipkaart1));
 
         // Voeg aanvullende tests van de ontbrekende CRUD-operaties in.
         closeConnection();
-
     }
 
-    private static void closeConnection() throws
-            SQLException {
-        if (connection != null) {
+
+//    private static void testAdresDAO(adresDAO adao) throws SQLException {
+//        System.out.println("\n---------- Test AdresDAO -------------");
+//
+//        List<Adres> adressen = adao.findAll();
+//        System.out.println("[Test] AdresDAO.findAll() geeft de volgende reizigers:");
+//        for (Adres a : adressen) {
+//            System.out.println(a);
+//        }
+//        System.out.println();
+//        String gbdatum = "2000-03-14";
+//        Reiziger jaap = new Reiziger(6, "J", "", "Armstrong", java.sql.Date.valueOf(gbdatum));
+//        Adres a = new Adres(6,"1234TB", "25A","HUStraat", "Groningen", jaap);
+//        System.out.print("[Test] Eerst " + adressen.size() + " reizigers, na AdresDAO.save() ");
+//        adao.save(a);
+//        adressen = adao.findAll();
+//        System.out.println(adressen.size() + " reizigers\n");
+//
+//        Adres aa = adao.findByReiziger(jaap);
+//        System.out.println("[Test] AdresDAO.findByReiziger() geeft de adres:");
+//        System.out.println(aa);
+//        System.out.println();
+//
+//        System.out.println("[Test] delete():    " + adao.delete(a));
+//        System.out.println();
+//        Reiziger jens = new Reiziger(7, "J", "", "Armweak", java.sql.Date.valueOf(gbdatum));
+//        Adres b = new Adres(7,"4321BT", "30B","HUStraat123", "Alkmaar", jens);
+//        System.out.println("[Test] update():    " + adao.update(b));
+//
+//        // Voeg aanvullende tests van de ontbrekende CRUD-operaties in.
+//        closeConnection();
+//
+//    }
+
+    private static void closeConnection() throws SQLException {
+        if (connection != null && !connection.isClosed()) {
             connection.close();
-            connection = null;
         }
     }
 

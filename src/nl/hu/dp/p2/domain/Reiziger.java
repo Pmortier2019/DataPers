@@ -1,6 +1,10 @@
 package nl.hu.dp.p2.domain;
 
+import nl.hu.dp.p4.OVChipkaart;
+
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Reiziger {
     private int reiziger_id;
@@ -8,6 +12,8 @@ public class Reiziger {
     private String tussenvoegsel;
     private String achternaam;
     private Date geboortedatum;
+    private List<OVChipkaart> ovChipkaarts = new ArrayList<>();
+
 
     public Reiziger(int rid, String vrl, String tsv, String atn, Date gbd) {
         reiziger_id = rid;
@@ -15,6 +21,14 @@ public class Reiziger {
         tussenvoegsel = tsv;
         achternaam = atn;
         geboortedatum = gbd;
+    }
+    public Reiziger(int rid, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum, List<OVChipkaart> ovChipkaarts) {
+        this.reiziger_id = rid;
+        this.voorletters = voorletters;
+        this.tussenvoegsel = tussenvoegsel;
+        this.achternaam = achternaam;
+        this.geboortedatum = geboortedatum;
+        this.ovChipkaarts = ovChipkaarts;
     }
 
     @Override
