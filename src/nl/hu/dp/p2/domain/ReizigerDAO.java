@@ -11,4 +11,4 @@ public interface ReizigerDAO {
     public Reiziger findById(int id);
     public List<Reiziger> findByGbDatum(Date geboortedatum);
     public List<Reiziger> findAll();
-}
+}//

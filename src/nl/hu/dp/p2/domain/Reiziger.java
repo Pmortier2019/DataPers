@@ -5,7 +5,7 @@ import nl.hu.dp.p4.OVChipkaart;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-
+//
 public class Reiziger {
     private int reiziger_id;
     private String voorletters;

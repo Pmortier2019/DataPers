@@ -15,47 +15,48 @@ import java.util.List;
 public class Main {
     static Connection connection;
 
+    public static void main(String[] args) throws SQLException{
+        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/ovchip", "postgres", "Pietermortier1");
 
-    public static void main(String[] args) throws SQLException {
-        String url = "jdbc:postgresql://localhost:5432/ovchip";
-        String username = "postgres";
-        String password = "Pietermortier1";
-        try {
-            Connection connection = DriverManager.getConnection(url, username, password);
-            Statement myStat =connection.createStatement();
-            System.out.println("Alle reizigers: ");
-            ResultSet myRs = myStat.executeQuery(""" 
-                                                    SELECT 
-                                                    reiziger_id,
-                                                    voorletters,
-                                                   achternaam,
-                                                    geboortedatum 
-                                                    FROM reiziger
-                                                    """);
+            try {
 
+                ReizigerDAO rdao = new ReizigerDAOPsql(connection);
+               //adresDAO adao = new AdresDAOPsql(connection);
+               //OVChipkaartDAOPsql odao = new OVChipkaartDAOPsql(connection, rdao);
+               //ProductDAOPsql pdao = new ProductDAOPsql(connection);
+               //testProductDAO(pdao);
+                testReizigerDAO(rdao);
+                System.out.println();
 
-            while (myRs.next()) {
-                int reizigerId = myRs.getInt("reiziger_id");
-                String voorletters = myRs.getString("voorletters");
-                String achternaam = myRs.getString("achternaam");
-                Date geboortedatum = myRs.getDate("geboortedatum");
-
-                String volledigeNaam = "#"+ reizigerId+" "+ voorletters + ". " + achternaam + "   " + geboortedatum;
-                System.out.println(volledigeNaam);
+            } catch (Exception exc) {
+                exc.printStackTrace();
             }
-            connection.close();
-        }
-        catch (SQLException exc){
-            System.out.println("Problemen met database");
-            exc.printStackTrace();
-            connection.close();
+
+
+
 
         }
-        catch (Exception exc){
-            System.out.println("Toegang tot database gaat goed maar ander foutje");
-            exc.printStackTrace();
-            connection.close();
+    private static void testReizigerDAO(ReizigerDAO rdao) throws SQLException {
+        System.out.println("\n---------- Test ReizigerDAO -------------");
 
+        // Haal alle reizigers op uit de database
+        List<Reiziger> reizigers = rdao.findAll();
+        System.out.println("[Test] ReizigerDAO.findAll() geeft de volgende reizigers:");
+        for (Reiziger r : reizigers) {
+            System.out.println(r);
         }
+        System.out.println();
+
+        // Maak een nieuwe reiziger aan en persisteer deze in de database
+        String gbdatum = "1981-03-14";
+        Reiziger sietske = new Reiziger(77, "S", "", "Boers", java.sql.Date.valueOf(gbdatum));
+        System.out.print("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.save() ");
+        rdao.save(sietske);
+        reizigers = rdao.findAll();
+        System.out.println(reizigers.size() + " reizigers\n");
+
+        // Voeg aanvullende tests van de ontbrekende CRUD-operaties in.
     }
+
+
 }

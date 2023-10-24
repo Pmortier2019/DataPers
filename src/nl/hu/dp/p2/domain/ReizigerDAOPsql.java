@@ -19,11 +19,28 @@ public class ReizigerDAOPsql implements ReizigerDAO {
         try {
             Statement myStmt = conn.createStatement();
 
-            ResultSet myRs = myStmt.executeQuery("SELECT * FROM reiziger");
+            ResultSet myRs = myStmt.executeQuery("""
+                                                        SELECT 
+                                                            reiziger_id,
+                                                            voorletters,
+                                                            tussenvoegsel,
+                                                            achternaam, 
+                                                            geboortedatum 
+                                                        FROM 
+                                                                reiziger
+                                                                 """);
             res = myRs;
 
-
-        } catch (Exception exception) {
+        }
+        catch (SQLException e) {
+            System.out.println("database niet goed");
+            e.printStackTrace();
+        }
+        catch (Exception exception) {
+            if (res != null){
+                System.out.println("Doet het nog niet");
+                res.close();
+            }
             exception.printStackTrace();
         }
     }
@@ -89,7 +106,18 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     @Override
     public Reiziger findById(int id) {
         try {
-            String query = "SELECT * FROM reiziger WHERE reiziger_id = ?";
+            String query = """
+                                                        SELECT 
+                                                            reiziger_id,
+                                                            voorletters,
+                                                            tussenvoegsel,
+                                                            achternaam, 
+                                                            geboortedatum 
+                                                        FROM 
+                                                                reiziger
+                                                        WHERE 
+                                                            reiziger_id = ?
+                                                                 """;
             PreparedStatement preparedStatement = conn.prepareStatement(query);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -113,7 +141,18 @@ public class ReizigerDAOPsql implements ReizigerDAO {
         List<Reiziger> reizigers = new ArrayList<>();
 
         try {
-            String query = "SELECT * FROM reiziger WHERE geboortedatum = ?";
+            String query = """
+                                                        SELECT 
+                                                            reiziger_id,
+                                                            voorletters,
+                                                            tussenvoegsel,
+                                                            achternaam, 
+                                                            geboortedatum 
+                                                        FROM 
+                                                                reiziger
+                                                        WHERE 
+                                                            geboortedatum = ?
+                                                                 """;
             PreparedStatement preparedStatement = conn.prepareStatement(query);
             preparedStatement.setDate(1, java.sql.Date.valueOf(String.valueOf(geboortedatum)));
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -140,46 +179,40 @@ public class ReizigerDAOPsql implements ReizigerDAO {
         List<Reiziger> reizigers = new ArrayList<>();
 
         try {
-            String query = "SELECT * FROM reiziger";
+            String query = """
+                                                        SELECT 
+                                                            reiziger_id,
+                                                            voorletters,
+                                                            tussenvoegsel,
+                                                            achternaam, 
+                                                            geboortedatum 
+                                                        FROM 
+                                                                reiziger
+                                                                 """;
             Statement statement = conn.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("reiziger_id");
-                String voorletters = resultSet.getString("voorletters");
+                String voorletters = resultSet.getString(2);
                 String tussenvoegsel = resultSet.getString("tussenvoegsel");
-                String achternaam = resultSet.getString("achternaam");
-                java.sql.Date geboortedatum = java.sql.Date.valueOf(resultSet.getDate("geboortedatum").toLocalDate());
+                if (resultSet.wasNull()) {
+                    tussenvoegsel = "";
+                }
+                String achternaam = resultSet.getString(4);
+                String geboortedatumString = resultSet.getString(5);
+
+                // Gb naar een dateObject
+                java.sql.Date geboortedatum = geboortedatumString.isEmpty() ? null : java.sql.Date.valueOf(geboortedatumString);
 
                 reizigers.add(new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-
         return reizigers;
     }
 
-   @Override
-   public String toString() {
-    String returnString = "";
-
-    try {
-        while (res.next()) {
-            returnString += res.getString("voorletters") + "." + res.getString("achternaam") + " (" + res.getString("geboortedatum") + ")" + " ";
-         }
-     } catch (SQLException e) {
-         e.printStackTrace();
-     }
-     return returnString;
-// }
-//   @Override
-//   public String toString() {
-//       if (adres != null) {
-//           return String.format("Reiziger {#%d %s %s, geb. %s, Adres {#%d %s-%s}}",
-//                   reiziger.getReiziger_id(), reiziger.getVoorletters(), reiziger.getAchternaam(), reiziger.getGeboortedatum().toString(), adres.getAdres_id(), adres.getPostcode(), adres.getHuisnummer());
-//       } else {
-//           return String.format("Reiziger {#%d %s %s, geb. %s}", reiziger.getReiziger_id(), reiziger.getVoorletters(), reiziger.getAchternaam(), reiziger.getGeboortedatum().toString());
-//       }
-//   }
-}}
+}
