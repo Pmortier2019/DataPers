@@ -3,22 +3,22 @@ package nl.hu.dp.p3;
 import nl.hu.dp.p2.domain.Reiziger;
 
 public class Adres {
-        private int adres_id;
-        private String straat;
-        private String postcode;
-        private String huisnummer;
-        private String woonplaats;
-        private int reizigerId;
-        private Reiziger reiziger;
+    private int adres_id;
+    private String straat;
+    private String postcode;
+    private String huisnummer;
+    private String woonplaats;
+    private int reizigerId;
+    private Reiziger reiziger;
 
-        public Adres(int adres_id, String straat, String postcode, String huisnummer, String woonplaats, Reiziger reiziger){
-            this.adres_id = adres_id;
-            this.huisnummer = huisnummer;
-            this.postcode = postcode;
-            this.reizigerId = reizigerId;
-            this.straat = straat;
-            this.woonplaats = woonplaats;
-        }
+    public Adres(int adres_id, String postcode,String straat,  String huisnummer, String woonplaats, Reiziger reiziger){
+        this.adres_id = adres_id;
+        this.huisnummer = huisnummer;
+        this.postcode = postcode;
+        this.reiziger = reiziger;
+        this.straat = straat;
+        this.woonplaats = woonplaats;
+    }
     @Override
     public String toString() {
         return "Adres {" +
@@ -66,11 +66,11 @@ public class Adres {
         this.woonplaats = woonplaats;
     }
 
-    public int getReizigerId() {
-        return reizigerId;
+    public Reiziger getReiziger() {
+        return reiziger;
     }
 
-    public void setReizigerId(int reizigerId) {
-        this.reizigerId = reizigerId;
+    public void setReiziger(Reiziger reiziger) {
+        this.reiziger = reiziger;
     }
 }

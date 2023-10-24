@@ -23,49 +23,86 @@ public class AdresDAOPsql implements adresDAO{
     }
 
 
-    public AdresDAOPsql(Connection conn) throws SQLException {
+    public AdresDAOPsql(Connection conn,ReizigerDAO rdao) throws SQLException {
+        this.rdao = rdao;
+
         try {
             Statement myStmt = conn.createStatement();
 
-            ResultSet myRs = myStmt.executeQuery("SELECT * FROM adres");
+
+            ResultSet myRs = myStmt.executeQuery("""
+                            SELECT 
+                                adres_id, 
+                                postcode, 
+                                huisnummer, 
+                                straat, 
+                                woonplaats, 
+                                reiziger_id 
+                            FROM 
+                                adres;
+                            """);
+
+
             res = myRs;
 
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+       }catch (SQLException e) {
+                System.out.println("database niet goed");
+                e.printStackTrace();
+            }
+        catch (Exception exception) {
+                if (res != null){
+                    System.out.println("Doet het nog niet");
+                    res.close();
+                }
+                exception.printStackTrace();
+            }
         }
 
-    }
-
-        @Override
-        public boolean save(Adres adres) {
-            try {
-                String query = "INSERT INTO adres(straat, postcode, huisnummer, woonplaats, reiziger_id) VALUES (?, ?, ?, ?, ?)";
-                PreparedStatement preparedStatement = conn.prepareStatement(query);
-                preparedStatement.setString(1, adres.getStraat());
-                preparedStatement.setString(2, adres.getPostcode());
-                preparedStatement.setString(3, adres.getHuisnummer());
-                preparedStatement.setString(4, adres.getWoonplaats());
-                preparedStatement.setInt(5, adres.getReizigerId());
-
-                int rowsAffected = preparedStatement.executeUpdate();
-
-                return rowsAffected > 0;
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return false;
+    @Override
+    public boolean save(Adres adres, Reiziger reiziger) throws SQLException {
+        boolean isSuccess = false;
+        try {
+            // Eerst reiziger opslaan
+            if (this.rdao != null) {
+                this.rdao.save(reiziger);
             }
+
+            // Adres opslaan met de ID van de opgeslagen reiziger
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO adres VALUES (?, ?, ?, ?, ?, ?)");
+            statement.setInt(1, adres.getAdres_id());
+            statement.setString(2, adres.getPostcode());
+            statement.setString(3, adres.getHuisnummer());
+            statement.setString(4, adres.getStraat());
+            statement.setString(5, adres.getWoonplaats());
+            statement.setInt(6, reiziger.getReiziger_id());
+
+            int rowsAffected = statement.executeUpdate();
+
+            statement.close();
+
+            isSuccess = rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return isSuccess;
     }
+
 
     @Override
     public boolean update(Adres adres) {
         try {
+            String postcode = adres.getPostcode().length() > 7 ? adres.getPostcode().substring(0, 7) : adres.getPostcode();
+            String huisnummer = adres.getHuisnummer().length() > 10 ? adres.getHuisnummer().substring(0, 10) : adres.getHuisnummer();
+            String woonplaats = adres.getWoonplaats().length() > 255 ? adres.getWoonplaats().substring(0, 255) : adres.getWoonplaats();
+
             String query = "UPDATE adres SET straat = ?, postcode = ?, huisnummer = ?, woonplaats = ? WHERE adres_id = ?";
             PreparedStatement preparedStatement = conn.prepareStatement(query);
             preparedStatement.setString(1, adres.getStraat());
-            preparedStatement.setString(2, adres.getPostcode());
-            preparedStatement.setString(3, adres.getHuisnummer());
-            preparedStatement.setString(4, adres.getWoonplaats());
+            preparedStatement.setString(2, postcode);
+            preparedStatement.setString(3, huisnummer);
+            preparedStatement.setString(4, woonplaats);
             preparedStatement.setInt(5, adres.getAdres_id());
 
             int rowsAffected = preparedStatement.executeUpdate();
@@ -76,6 +113,7 @@ public class AdresDAOPsql implements adresDAO{
             return false;
         }
     }
+
 
     @Override
     public boolean delete(Adres adres) {
@@ -96,7 +134,20 @@ public class AdresDAOPsql implements adresDAO{
     @Override
     public Adres findByReiziger(Reiziger reiziger) {
         try {
-            String query = "SELECT * FROM adres WHERE reiziger_id = ?";
+            String query = """
+                            SELECT 
+                                adres_id, 
+                                postcode, 
+                                huisnummer, 
+                                straat, 
+                                woonplaats, 
+                                reiziger_id 
+                            FROM 
+                                adres
+                            WHERE 
+                                reiziger_id = ?
+                            """;
+
             PreparedStatement preparedStatement = conn.prepareStatement(query);
             preparedStatement.setInt(1, reiziger.getReiziger_id());
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -121,7 +172,17 @@ public class AdresDAOPsql implements adresDAO{
     public List<Adres> findAll() throws SQLException {
         try {
             ArrayList<Adres> adressen = new ArrayList<Adres>();
-            String query = "SELECT * FROM adres;";
+            String query = """
+                            SELECT 
+                                adres_id, 
+                                postcode, 
+                                huisnummer, 
+                                straat, 
+                                woonplaats, 
+                                reiziger_id 
+                            FROM 
+                                adres;
+                            """;
             PreparedStatement statement = conn.prepareStatement(query);
             ResultSet set = statement.executeQuery();
             while (set != null && set.next()) {
@@ -140,5 +201,4 @@ public class AdresDAOPsql implements adresDAO{
             System.out.println("SQLException: " + e.getMessage());
             throw e;
         }
-    }
-}
+    }}

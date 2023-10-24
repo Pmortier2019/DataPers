@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.List;
 
 public interface adresDAO {
-    public boolean save(Adres adres);
+    public boolean save(Adres adres, Reiziger reiziger) throws SQLException;
+
+
     public boolean update(Adres adres);
     public boolean delete(Adres adres);
     Adres findByReiziger(Reiziger reiziger);
