@@ -10,5 +10,5 @@ public interface ReizigerDAO {
     public boolean delete(Reiziger reiziger);
     public Reiziger findById(int id);
     public List<Reiziger> findByGbDatum(Date geboortedatum);
-    public List<Reiziger> findAll();
+    public List<Reiziger> findAll() throws SQLException;
 }//

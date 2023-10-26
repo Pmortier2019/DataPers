@@ -2,6 +2,7 @@ package nl.hu.dp.p2.domain;
 import nl.hu.dp.p2.domain.Reiziger;
 import nl.hu.dp.p2.domain.ReizigerDAO;
 import nl.hu.dp.p3.Adres;
+import nl.hu.dp.p3.adresDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -44,21 +45,35 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             exception.printStackTrace();
         }
     }
+    private int findHighestReizigerId() throws SQLException {
+        String query = "SELECT MAX(reiziger_id) FROM reiziger";
+        Statement statement = conn.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
+        }
+
+        // Geen bestaande reizigers in de database
+        return 0;
+    }
 
     @Override
     public boolean save(Reiziger reiziger) {
         try {
-            int aantalReizigers = findAll().size();
-
+            int hoogsteReizigerId = findHighestReizigerId();
+            int nieuweReizigerId = hoogsteReizigerId + 1;
             String query = "INSERT INTO reiziger(reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(query);
-            preparedStatement.setInt(1, aantalReizigers+2);
+            preparedStatement.setInt(1, nieuweReizigerId);
             preparedStatement.setString(2, reiziger.getVoorletters());
             preparedStatement.setString(3, reiziger.getTussenvoegsel());
             preparedStatement.setString(4, reiziger.getAchternaam());
             preparedStatement.setDate(5, java.sql.Date.valueOf(reiziger.getGeboortedatum().toString()));
 
             int rowsAffected = preparedStatement.executeUpdate();
+
+
 
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -70,7 +85,14 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     @Override
     public boolean update(Reiziger reiziger) {
         try {
-            String query = "UPDATE reiziger SET voorletters = ?, tussenvoegsel = ?, achternaam = ?, geboortedatum = ? WHERE reiziger_id = ?";
+            String query = """
+                            UPDATE reiziger 
+                            SET voorletters = ?, 
+                            tussenvoegsel = ?, 
+                            achternaam = ?, 
+                            geboortedatum = ? 
+                            WHERE reiziger_id = ?
+                            """;
             PreparedStatement preparedStatement = conn.prepareStatement(query);
             preparedStatement.setString(1, reiziger.getVoorletters());
             preparedStatement.setString(2, reiziger.getTussenvoegsel());
@@ -107,17 +129,17 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     public Reiziger findById(int id) {
         try {
             String query = """
-                                                        SELECT 
-                                                            reiziger_id,
-                                                            voorletters,
-                                                            tussenvoegsel,
-                                                            achternaam, 
-                                                            geboortedatum 
-                                                        FROM 
-                                                                reiziger
-                                                        WHERE 
-                                                            reiziger_id = ?
-                                                                 """;
+                          SELECT 
+                              reiziger_id,
+                              voorletters,
+                              tussenvoegsel,
+                              achternaam, 
+                              geboortedatum 
+                          FROM 
+                                  reiziger
+                          WHERE 
+                              reiziger_id = ?
+                                   """;
             PreparedStatement preparedStatement = conn.prepareStatement(query);
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -167,6 +189,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 reizigers.add(new Reiziger(id, voorletters, tussenvoegsel, achternaam, gbDatum));
             }
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
 
@@ -175,11 +198,14 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
 
     @Override
-    public List<Reiziger> findAll() {
+    public List<Reiziger> findAll() throws SQLException {
         List<Reiziger> reizigers = new ArrayList<>();
-
+        Statement statement = null;
+        ResultSet resultSet = null;
         try {
-            String query = """
+            statement = conn.createStatement();
+
+            resultSet = statement.executeQuery( """
                                                         SELECT 
                                                             reiziger_id,
                                                             voorletters,
@@ -188,9 +214,8 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                                                             geboortedatum 
                                                         FROM 
                                                                 reiziger
-                                                                 """;
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
+                                                                 """);
+
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("reiziger_id");
@@ -208,10 +233,16 @@ public class ReizigerDAOPsql implements ReizigerDAO {
                 reizigers.add(new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum));
             }
         } catch (SQLException e) {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (statement != null) {
+                statement.close();
+            }
             e.printStackTrace();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("Fout bij het ophalen van reizigers.", e); // Gooi de exceptie opnieuw
         }
+
         return reizigers;
     }
 

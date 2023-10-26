@@ -33,7 +33,7 @@ public class Reiziger {
 
     @Override
     public String toString() {
-        String s = "";
+        String s = "Reiziger: ";
         s = s + "naam:" + this.getVoorletters() + " " + this.getTussenvoegsel() + " "
                 + this.getAchternaam() + "\t geboortedatum: " + this.getGeboortedatum();
 
@@ -49,16 +49,23 @@ public class Reiziger {
     }
 
     public void setVoorletters(String voorletters) {
-        this.voorletters = voorletters;
+        if (voorletters!= null){
+        this.voorletters = voorletters;}
+        else voorletters= "";
     }
 
     public String getTussenvoegsel() {
-        return tussenvoegsel;
+
+        if (tussenvoegsel !=null){
+            return this.tussenvoegsel = tussenvoegsel;}
+        else {return tussenvoegsel = " ";}
     }
 
     public void setTussenvoegsel(String tussenvoegsel) {
-        this.tussenvoegsel = tussenvoegsel;
-    }
+        if (tussenvoegsel !=null){
+        this.tussenvoegsel = tussenvoegsel;}
+        else {tussenvoegsel = " ";}
+        }
 
     public String getAchternaam() {
         return achternaam;
