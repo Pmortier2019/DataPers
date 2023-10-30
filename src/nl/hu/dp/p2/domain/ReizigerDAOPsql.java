@@ -2,7 +2,7 @@ package nl.hu.dp.p2.domain;
 import nl.hu.dp.p2.domain.Reiziger;
 import nl.hu.dp.p2.domain.ReizigerDAO;
 import nl.hu.dp.p3.Adres;
-import nl.hu.dp.p3.adresDAO;
+import nl.hu.dp.p3.AdresDAO;
 
 import java.sql.*;
 import java.util.ArrayList;

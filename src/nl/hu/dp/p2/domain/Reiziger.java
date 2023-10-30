@@ -1,5 +1,6 @@
 package nl.hu.dp.p2.domain;
 
+import nl.hu.dp.p3.Adres;
 import nl.hu.dp.p4.OVChipkaart;
 
 import java.sql.Date;
@@ -12,7 +13,9 @@ public class Reiziger {
     private String tussenvoegsel;
     private String achternaam;
     private Date geboortedatum;
-    private List<OVChipkaart> ovChipkaarts = new ArrayList<>();
+    private Adres reizigerAdres;
+
+    private ArrayList<OVChipkaart> ovchipkaarten  = new ArrayList<>();
 
 
     public Reiziger(int rid, String vrl, String tsv, String atn, Date gbd) {
@@ -21,24 +24,38 @@ public class Reiziger {
         tussenvoegsel = tsv;
         achternaam = atn;
         geboortedatum = gbd;
-    }
-    public Reiziger(int rid, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum, List<OVChipkaart> ovChipkaarts) {
-        this.reiziger_id = rid;
+    } public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum, List<OVChipkaart> ovchipkaarten) {
+        this.reiziger_id = id;
         this.voorletters = voorletters;
         this.tussenvoegsel = tussenvoegsel;
         this.achternaam = achternaam;
         this.geboortedatum = geboortedatum;
-        this.ovChipkaarts = ovChipkaarts;
+        this.ovchipkaarten = (ArrayList<OVChipkaart>) ovchipkaarten;
+    }
+
+    public List<OVChipkaart> getOvChipkaarts() {
+        return ovchipkaarten;
+    }
+
+    public Reiziger(int id, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum, Adres adres){
+        this.reiziger_id = id;
+        this.voorletters = voorletters;
+        this.tussenvoegsel = tussenvoegsel;
+        this.achternaam = achternaam;
+        this.geboortedatum = geboortedatum;
+//        this.adres = adres;
+    }
+    public Reiziger(){
+
     }
 
     @Override
     public String toString() {
-        String s = "Reiziger: ";
-        s = s + "naam:" + this.getVoorletters() + " " + this.getTussenvoegsel() + " "
-                + this.getAchternaam() + "\t geboortedatum: " + this.getGeboortedatum();
+        return "Reiziger{" +
+                "reiziger_id=" + reiziger_id +
+                ", " + reizigerAdres + ovchipkaarten+
 
-        return s;
-    }
+                "}\n";}
 
     public int getReiziger_id() {
         return reiziger_id;
@@ -49,9 +66,11 @@ public class Reiziger {
     }
 
     public void setVoorletters(String voorletters) {
-        if (voorletters!= null){
-        this.voorletters = voorletters;}
-        else voorletters= "";
+        if (voorletters != null && !voorletters.trim().isEmpty()) {
+            this.voorletters = voorletters;
+        } else {
+            this.voorletters = "";
+        }
     }
 
     public String getTussenvoegsel() {
@@ -62,11 +81,12 @@ public class Reiziger {
     }
 
     public void setTussenvoegsel(String tussenvoegsel) {
-        if (tussenvoegsel !=null){
-        this.tussenvoegsel = tussenvoegsel;}
-        else {tussenvoegsel = " ";}
+        if (tussenvoegsel != null && !tussenvoegsel.trim().isEmpty()) {
+            this.tussenvoegsel = tussenvoegsel;
+        } else {
+            this.tussenvoegsel = "";
         }
-
+    }
     public String getAchternaam() {
         return achternaam;
     }
@@ -78,11 +98,22 @@ public class Reiziger {
     public Date getGeboortedatum() {
         return geboortedatum;
     }
+    public void setAdres(Adres a) {
+        reizigerAdres = a;
+    }
 
+    public Adres getAdres() {
+        return reizigerAdres;
+    }
     public void setGeboortedatum(Date geboortedatum) {
         this.geboortedatum = geboortedatum;
     }
 
+    public void addOvchipkaart(OVChipkaart ovchipkaart) {
+        if (!ovchipkaarten.contains(ovchipkaart)) {
+            ovchipkaarten.add(ovchipkaart);
+        }
+    }
     public String getVoorletters() {
         return voorletters;
     }

@@ -16,7 +16,7 @@ public class ProductDAOPsql implements ProductDAO{
 
     @Override
     public boolean save(Product product) throws SQLException {
-        boolean isSuccess = false;
+        Boolean isSuccess = false;
         try {
 
             PreparedStatement statement = conn.prepareStatement("INSERT INTO product VALUES (?,?,?,?)");

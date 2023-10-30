@@ -21,13 +21,14 @@ public class Product {
     public ArrayList<OVChipkaart> getOvChipkaarts() {
         return ovChipkaarts;
     }
+
     public void voegChipkaartToe(OVChipkaart ovChipkaart){
         ovChipkaarts.add(ovChipkaart);
-        ovChipkaart.getProducts().add(this);
+        ovChipkaart.getProducten().add(this);
     }
     public void verwijderChipkaart(OVChipkaart ovChipkaart){
         ovChipkaarts.remove(ovChipkaart);
-        ovChipkaart.getProducts().remove(this);
+        ovChipkaart.getProducten().remove(this);
     }
     public int getProduct_nummer() {
         return product_nummer;
